@@ -1,5 +1,3 @@
-package ID1069924.ID1069756;
-
 /**
  * Implements Robin Hood Hashing, an advanced hashing algorithm
  * where elements with higher probe lengths are displaced
@@ -222,3 +220,4 @@ public class RobinHoodHashing {
         System.out.println("Search 'c': " + rh.search('c'));
     }
 }
+
