@@ -1,88 +1,109 @@
+package lab8;
+
 public class CompressedTrieNode {
-    private SinglyLinkedList edgeList;
-    public boolean isEndOfWord;
+	private SinglyLinkedList edgeList;
+	protected boolean isEndOfWord;
+	
+	public CompressedTrieNode() {
+		isEndOfWord = false;
+		edgeList = null;
+	}
+	
+	public void insertEdge(Edge edge) {
+		// insert edge in list of edges
+		if (edgeList==null){
+			edgeList = new SinglyLinkedList();
+		}
+		edgeList.insertFront(edge);
+	}
+	
+	public Edge getEdgeByFirstChar(char c) {
+		// find appropriate edge based on the first character
+		if (edgeList==null) return null;
+        SinglyLinkedList.Node temp = this.edgeList.head;
+		while (temp!=null){
+			if (temp.edge.label.charAt(0) == c){
+				return temp.edge;
+			}
+			temp = temp.next;
+		}
 
-    public CompressedTrieNode() {
-        this.isEndOfWord = false;
-        this.edgeList = new SinglyLinkedList();
-    }
+		return null;
+	}
 
-    public void insertEdge(Edge edge) {
-        // check if there is another edge that starts with the same character
-        Edge existing = this.edgeList.getEdge(edge.label.charAt(0));
-        // if there is no edge starting with the desired character insert a new edge.
-        if (existing == null) {
-            edgeList.insert(edge);
-            edge.child.isEndOfWord = true;
-            return;
-        }
+	public void splitNode1(Edge edge, String prefix){
+		if (edgeList==null || edgeList.findNode(edge)==false) return;
+		SinglyLinkedList.Node oldNode = edgeList.head;
+		while (oldNode!=null){
+			if (edge==oldNode.edge){
+				break;
+			}
+			oldNode = oldNode.next;
+		}
+		if (oldNode==null){
+			return;
+		}
+		
+		/* must split the label */
+		String str1 = prefix; //first part
+		StringBuilder strB = new StringBuilder();
+		for (int i=prefix.length();i<edge.label.length();i++){
+			strB = strB.append(edge.label.charAt(i));
+		}
+		String str2 = strB.toString(); //second part
 
-        // compute the common prefix length
-        int commonPrefixLength = computeCommonPrefixLength(existing.label, edge.label);
+		
+		Edge prefixEdge = new Edge(str1); // create edge for prefix part
+		edgeList.insertFront(prefixEdge); // add first part of split
+		prefixEdge.child = oldNode.edge.child; //temporarily hold old node's child
+		if (prefixEdge.child == null){
+			prefixEdge.child = new CompressedTrieNode();
+		}
+		edgeList.deleteNode(edge); // delete old label node
+		Edge suffixEdge = new Edge(str2); // create suffix part of split
+		suffixEdge.child = prefixEdge.child; // suffix inherits old one's children
+		prefixEdge.child = new CompressedTrieNode(); // completely new child
+		prefixEdge.child.isEndOfWord = true; // prefix is a word
+		prefixEdge.child.insertEdge(suffixEdge); // add suffix as a child
+	}
 
-        String newLabel;
-        Edge newEdge;
+	public void splitNode2(Edge edge, String word, String prefix){
+		if (edgeList==null || edgeList.findNode(edge)==false) return;
+		SinglyLinkedList.Node oldNode = edgeList.head;
+		while (oldNode!=null){
+			if (edge==oldNode.edge){
+				break;
+			}
+			oldNode = oldNode.next;
+		}
+		if (oldNode==null){
+			return;
+		}
 
-        // Case 1
-        if (edge.label.length() == commonPrefixLength && existing.label.length() > commonPrefixLength) {
-            newLabel = existing.label.substring(commonPrefixLength, existing.label.length());
-            newEdge = new Edge(newLabel, existing.child);
+		/* get first part of split */
+		StringBuilder strB1 = new StringBuilder();
+		for (int i=prefix.length();i<word.length();i++){
+			strB1 = strB1.append(word.charAt(i));
+		}
+		String str1 = strB1.toString(); //first child
 
-            existing.label = edge.label;
-            existing.child = new CompressedTrieNode();
-            existing.child.isEndOfWord = true;
+		/* get second part of split */
+		StringBuilder strB2 = new StringBuilder();
+		for (int i=prefix.length();i<edge.label.length();i++){
+			strB2 = strB2.append(edge.label.charAt(i));
+		}
+		String str2 = strB2.toString(); //second child
 
-            existing.child.edgeList.insert(newEdge);
-
-        }
-        // Case 2 existing edge is prefix of edge to be inserted
-        if (existing.label.length() == commonPrefixLength && edge.label.length() > commonPrefixLength) {
-            newLabel = edge.label.substring(commonPrefixLength, edge.label.length());
-            edge.label = newLabel;
-
-            // move to the child of the existing node and insert the remaining of the edge
-            existing.child.insertEdge(edge);
-        }
-        // Case 3
-        if (commonPrefixLength < edge.label.length() && commonPrefixLength < existing.label.length()) {
-            newLabel = existing.label.substring(0, commonPrefixLength);
-            String remainingExistingLabel = existing.label.substring(commonPrefixLength, existing.label.length());
-            existing.label = newLabel;
-            newEdge = new Edge(remainingLabel, existing.child);
-
-
-            CompressedTrieNode newNode = new CompressedTrieNode();
-            newNode.edgeList.insert(newEdge);
-
-            newEdge = new Edge()
-
-            newNode.edgeList.insert()
-        }
-
-        // Case 4
-
-    }
-
-    public int computeCommonPrefixLength(String existingLabel, String labelToBeInserted) {
-        int prefixLength = 0;
-        if (existingLabel.length() >= labelToBeInserted.length()) {
-            for (int i = 0; i < labelToBeInserted.length(); i++) {
-                if (existingLabel.charAt(i) == labelToBeInserted.charAt(i)) {
-                    prefixLength++;
-                }
-            }
-        } else {
-            for (int i = 0; i < existingLabel.length(); i++) {
-                if (existingLabel.charAt(i) == labelToBeInserted.charAt(i)) {
-                    prefixLength++;
-                }
-            }
-        }
-
-        return prefixLength;
-    }
-
-    public Edge getEdgeByFirstChar(char c) {
-
-    }
+		Edge edge0 = new Edge(prefix); // create the common prefix edge
+		Edge wordChild = new Edge(str1); // create the new word suffix edge
+		Edge labelChild = new Edge(str2); // create the label word suffix edge
+		labelChild.child = oldNode.edge.child; // label word inherits children
+		edgeList.insertFront(edge0); // insert prefix in list
+		edgeList.deleteNode(oldNode.edge); // delete old wordf from list
+		edge0.child = new CompressedTrieNode(); // create new child for prefix edge
+		edge0.child.insertEdge(labelChild); // insert label child in prefix
+		edge0.child.insertEdge(wordChild); // insert word child in prefix
+		wordChild.child = new CompressedTrieNode();
+		wordChild.child.isEndOfWord = true;
+	}
 }
