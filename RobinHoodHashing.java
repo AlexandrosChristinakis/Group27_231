@@ -1,158 +1,123 @@
+package def;
+
 /**
- * Implements Robin Hood Hashing, an advanced hashing algorithm
- * where elements with higher probe lengths are displaced
- * to ensure efficient insertion and retrieval operations.
+ * Robin Hood Hashing for storing trie edges.
+ * Keys are based on the FIRST CHARACTER of the edge label.
  */
 public class RobinHoodHashing {
 
-    /**
-     * Represents an individual element in the hash table.
-     */
-    public class element {
-        private char key; // The key of the element.
-        private int probeLength; // Probe length for displacement tracking.
-        private int wordLength; // Length of the word this key is part of (if applicable).
-        private int importance; // Priority/importance of this element.
-        private TrieDictionary.TrieDictionaryNode next; // Pointer to the next Trie node.
+	 public static void main(String[] args) {
 
-        public element(char key) {
-            this.key = key;
-        }
+	        System.out.println("=== Robin Hood Hash Test ===");
 
-        // Getters and setters for the element fields.
-        public TrieDictionary.TrieDictionaryNode getNext() { return this.next; }
-        public int getWordLength() { return this.wordLength; }
-        public int getImportance() { return this.importance; }
-        public char getKey() { return this.key; }
-        public void setNext(TrieDictionary.TrieDictionaryNode next) { this.next = next; }
-        public void setWordLength(int wordLength) { this.wordLength = wordLength; }
-        public void setImportance(int importance) { this.importance = importance; }
+	        RobinHoodHashing rh = new RobinHoodHashing();
 
-        /**
-         * Displays the element in a human-readable format.
-         */
-        public void display() {
-            System.out.print("(" + key + "," + probeLength + ")");
+	        // Insert some edges
+	        rh.insert(new EdgeForHashing("cat"));
+	        rh.insert(new EdgeForHashing("dog"));
+	        rh.insert(new EdgeForHashing("car"));
+	        rh.insert(new EdgeForHashing("apple"));
+	        rh.insert(new EdgeForHashing("ant"));
+	        rh.insert(new EdgeForHashing("cow"));
+	        rh.insert(new EdgeForHashing("duck"));
+	        rh.insert(new EdgeForHashing("bat"));
+
+	        System.out.println("\n=== Table After Insertions ===");
+	        rh.debug();
+
+	        // Search for edges
+	        System.out.println("\n=== Search Tests ===");
+	        System.out.println("dog -> " + (rh.getEdgeByFirstChar('d') != null));
+	        System.out.println("cat -> " + (rh.getEdgeByFirstChar('c') != null));
+	        System.out.println("apple -> " + (rh.getEdgeByFirstChar('a') != null));
+	        System.out.println("zebra -> " + (rh.getEdgeByFirstChar('z') != null));
+
+	        // Delete something
+	        EdgeForHashing e = rh.getEdgeByFirstChar('c'); // delete 'cat' or 'car'
+	        if (e != null) {
+	            System.out.println("\n=== Deleting edge: " + e.label + " ===");
+	            rh.deleteEdge(e);
+	        }
+
+	        System.out.println("\n=== Table After Deletion ===");
+	        rh.debug();
+	    }
+	
+    // ====================== ELEMENT ======================
+    public static class Element {
+        EdgeForHashing edge;        // The stored edge
+        int probeLength;  // How far this element has probed
+
+        Element(EdgeForHashing edge2) {
+            this.edge = edge2;
+            this.probeLength = 0;
         }
     }
 
-    private static final int[] capacitySizes = {5, 11, 19, 29}; // Predefined table sizes for rehashing.
-    private element[] table; // The hash table.
-    private int capacity; // Current capacity of the hash table.
-    private int size; // Current number of elements in the hash table.
-    private int maxProbeLength; // Tracks the maximum probe length among elements.
-    private int capacityIndex; // Index to track resizing progress.
+    // ====================== TABLE FIELDS ======================
+    private Element[] table;
+    private int capacity;
+    private int size;
+    private int maxProbe;
+    
+    private static final int[] capacities = {5, 11, 23, 47, 97, 197};
+    private int capIndex = 0;
 
-    // Constructors for initializing the hash table.
+    // ====================== CONSTRUCTOR ======================
     public RobinHoodHashing() {
-        this(capacitySizes[0]);
-        capacityIndex = 0;
+        this.capacity = capacities[0];
+        this.table = new Element[this.capacity];
+        this.size = 0;
+        this.maxProbe = 0;
     }
 
-    public RobinHoodHashing(int capacity) {
-        this.capacity = capacity;
-        table = new element[this.capacity];
+    // ====================== HASH FUNCTION ======================
+    private int hash(char c) {
+        return (c % capacity + capacity) % capacity;
     }
 
-    public RobinHoodHashing(int capacity, int maxProbeLength) {
-        this(capacity);
-        this.maxProbeLength = maxProbeLength;
-    }
-
-    /**
-     * Rehashes the hash table into a larger capacity.
-     */
-    private void rehash() {
-        if (capacityIndex == capacitySizes.length - 1) {
-            System.out.println("Hash table is full: Maximum capacity reached.");
-            return;
-        }
-
-        capacityIndex++;
-        int newCapacity = capacitySizes[capacityIndex];
-        element[] oldTable = table;
-        table = new element[newCapacity];
-        capacity = newCapacity;
-        size = 0;
-        maxProbeLength = 0;
-
-        // Reinsert all existing elements into the new table.
-        for (element e : oldTable) {
-            if (e != null) {
-                insert(e.key);
-            }
-        }
-    }
-
-    /**
-     * Inserts a key into the hash table.
-     * Uses the Robin Hood hashing algorithm to manage collisions.
-     * @param key The key to insert.
-     */
-    public void insert(char key) {
-        if (size == capacity) {
+    // ====================== INSERT ======================
+    public void insert(EdgeForHashing edge) {
+        if (size * 2 >= capacity) {   // load factor 0.5
             rehash();
-            if (size == capacity) { return; }
         }
 
-        element elmnt = new element(key);
-        elmnt.probeLength = 0;
-
-        int index = key % capacity;
+        Element elem = new Element(edge);
+        char key = edge.label.charAt(0);
+        int index = hash(key);
 
         while (true) {
+
             if (table[index] == null) {
-                table[index] = elmnt;
+                table[index] = elem;
                 size++;
+                if (elem.probeLength > maxProbe) maxProbe = elem.probeLength;
                 return;
             }
 
-            if (elmnt.probeLength > table[index].probeLength) {
-                element temp = table[index];
-                table[index] = elmnt;
-                elmnt = temp;
+            // Robin Hood swap if incoming has larger probe distance
+            if (elem.probeLength > table[index].probeLength) {
+                Element temp = table[index];
+                table[index] = elem;
+                elem = temp;
             }
 
-            elmnt.probeLength++;
-            if (elmnt.probeLength > maxProbeLength) {
-                maxProbeLength = elmnt.probeLength;
-            }
-
+            elem.probeLength++;
             index = (index + 1) % capacity;
         }
     }
 
-    /**
-     * Searches for a key in the hash table.
-     * @param key The key to search.
-     * @return True if the key is found, false otherwise.
-     */
-    public boolean search(char key) {
-        element elmnt = new element(key);
-        int index = (elmnt.key % capacity);
+    // ====================== SEARCH BY FIRST CHAR ======================
+    public EdgeForHashing getEdgeByFirstChar(char c) {
+        int index = hash(c);
 
-        for (int i = 0; i <= maxProbeLength; i++) {
-            if (table[index] == null) return false;
+        for (int i = 0; i <= maxProbe; i++) {
+            Element el = table[index];
+            if (el == null) return null;
 
-            if (table[index].key == elmnt.key) return true;
-
-            index = (index + 1) % capacity;
-        }
-
-        return false;
-    }
-
-    /**
-     * Retrieves an element by its key.
-     * @param key The key to find.
-     * @return The element or null if not found.
-     */
-    public element getElement(char key) {
-        if (!search(key)) return null;
-
-        int index = (key % capacity);
-        for (int i = 0; i <= maxProbeLength; i++) {
-            if (table[index].key == key) return table[index];
+            if (el.edge.label.charAt(0) == c) {
+                return el.edge;
+            }
 
             index = (index + 1) % capacity;
         }
@@ -160,64 +125,73 @@ public class RobinHoodHashing {
         return null;
     }
 
-    /**
-     * Displays the entire hash table.
-     */
-    public void display() {
-        System.out.print("[");
+    // ====================== DELETE (for trie splitting) ======================
+    public void deleteEdge(EdgeForHashing e) {
+        char key = e.label.charAt(0);
+        int index = hash(key);
 
-        for (int i = 0; i < (capacity - 1); i++) {
-            if (table[i] == null) {
-                System.out.print("_,");
-                continue;
+        for (int i = 0; i <= maxProbe; i++) {
+
+            if (table[index] == null) return;
+
+            if (table[index].edge == e) {
+                table[index] = null;
+                size--;
+
+                // SHIFT BACKWARD (Robin Hood deletion repair)
+                int next = (index + 1) % capacity;
+
+                while (table[next] != null && table[next].probeLength > 0) {
+                    Element move = table[next];
+                    table[next] = null;
+                    move.probeLength--;
+                    insert(move.edge);
+                    next = (next + 1) % capacity;
+                }
+
+                return;
             }
 
-            table[i].display();
-            System.out.print(",");
+            index = (index + 1) % capacity;
+        }
+    }
+
+    // ====================== REHASH ======================
+    private void rehash() {
+        if (capIndex == capacities.length - 1) {
+            System.out.println("Max capacity reached — cannot rehash.");
+            return;
         }
 
-        if (table[capacity - 1] == null) System.out.print("_");
-        else table[capacity - 1].display();
+        capIndex++;
+        int newCap = capacities[capIndex];
 
-        System.out.println("]");
+        Element[] old = table;
+        table = new Element[newCap];
+        capacity = newCap;
+        size = 0;
+        maxProbe = 0;
+
+        for (Element e : old) {
+            if (e != null) {
+                insert(e.edge);
+            }
+        }
     }
 
-    // Getters for capacity and size.
-    public int getCapacity() { return this.capacity; }
-    public int getSize() { return this.size; }
-
-    /**
-     * Gets the element at a specific index in the hash table.
-     * @param index Index to fetch from.
-     * @return The element at the specified index.
-     */
-    public element getElementAt(int index) { return table[index]; }
-
-    /**
-     * Main method for testing Robin Hood Hashing.
-     */
-    public static void main(String[] args) {
-        RobinHoodHashing rh = new RobinHoodHashing();
-
-        // Insertions and automatic rehash testing.
-        rh.insert('a');
-        rh.insert('b');
-        rh.insert('c');
-        rh.insert('n');
-        rh.insert('e');
-        rh.insert('f'); // Will trigger rehash
-        rh.insert('g');
-        rh.insert('h');
-        rh.insert('i');
-        rh.insert('j');
-        rh.insert('k'); // Will trigger rehash again
-        rh.insert('l');
-        rh.insert('m');
-        rh.insert('o'); // Will trigger rehash again
-
-        rh.display();
-        System.out.println("Max Probe Length: " + rh.maxProbeLength);
-        System.out.println("Search 'c': " + rh.search('c'));
+    // ====================== DEBUG PRINT ======================
+    public void debug() {
+        for (int i = 0; i < capacity; i++) {
+            System.out.print(i + ": ");
+            if (table[i] == null) {
+                System.out.println("_");
+            } else {
+                System.out.println("(" +
+                    table[i].edge.label + 
+                    ", probe=" + table[i].probeLength + ")");
+            }
+        }
     }
+    
+    
 }
-
