@@ -2,7 +2,7 @@ package def.src;
 
 
 public class CompressedTrieWithRobinHoodHash {
-	CompressedTrieNode root;
+	CompressedTrieNodeWithHash root;
 	
 
 	public static void main(String[] args) {
@@ -36,7 +36,7 @@ public class CompressedTrieWithRobinHoodHash {
 	
 
 	public CompressedTrieWithRobinHoodHash() {
-		root = new CompressedTrieNode();
+		root = new CompressedTrieNodeWithHash();
 	}
 	
 	public void insert(String word) {
@@ -47,14 +47,14 @@ public class CompressedTrieWithRobinHoodHash {
 	    insertRecursively(root, word);
 	}
 
-	private void insertRecursively(CompressedTrieNode node, String word) {
+	private void insertRecursively(CompressedTrieNodeWithHash node, String word) {
 
 	    Edge edge = node.getEdgeByFirstChar(word.charAt(0));
 
 	    // Case 0: No matching edge → insert full word
 	    if (edge == null) {
 	        Edge newEdge = new Edge(word);
-	        CompressedTrieNode child = new CompressedTrieNode();
+            CompressedTrieNodeWithHash child = new CompressedTrieNodeWithHash();
 	        child.isEndOfWord = true;
 	        newEdge.child = child;
 	        node.insertEdge(newEdge);
@@ -125,7 +125,7 @@ public class CompressedTrieWithRobinHoodHash {
 		return searchRecursively(root, word);
 	}
 
-	private boolean searchRecursively(CompressedTrieNode node, String word){
+	private boolean searchRecursively(CompressedTrieNodeWithHash node, String word){
 		if (word.isEmpty()){
 			return node.isEndOfWord;
 		}
