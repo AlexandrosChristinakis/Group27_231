@@ -10,6 +10,8 @@ public class Main {
     public static void main(String[] args) {
         CompressedTrieWithRobinHoodHash dictionaryCompressedTrie = new CompressedTrieWithRobinHoodHash();
         ArrayList<String> wordsList = getWordsArrayFromFile("src/dictionary.txt");
+
+        fillDictionaryCompressedTrie(dictionaryCompressedTrie, wordsList);
     }
 
     public static ArrayList<String> getWordsArrayFromFile(String fileName) {
@@ -23,7 +25,12 @@ public class Main {
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
         }
-
         return wordsList;
+    }
+
+    public static void fillDictionaryCompressedTrie(CompressedTrieWithRobinHoodHash dictionaryCompressedTrie, ArrayList<String> wordsList) {
+        for (String word: wordsList) {
+            dictionaryCompressedTrie.insert(word);
+        }
     }
 }
