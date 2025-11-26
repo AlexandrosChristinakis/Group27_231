@@ -127,7 +127,11 @@ public class CompressedTrieWithRobinHoodHash {
 
 	private boolean searchRecursively(CompressedTrieNodeWithHash node, String word){
 		if (word.isEmpty()){
-			return node.isEndOfWord;
+            if (node.isEndOfWord) {
+                node.importance++;
+                return true;
+            }
+            return false;
 		}
         EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
 		if (temp == null){
@@ -139,16 +143,17 @@ public class CompressedTrieWithRobinHoodHash {
 		if (commonPrefix == temp.label.length() && commonPrefix<word.length() ){
 			return searchRecursively(temp.child, word.substring(temp.label.length()));
 		}
+
 		// check if our label and word match exactly
 		else if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
 		    // We fully consumed the label and the word.
 		    // The correct end-of-word flag is on the CHILD node.
-		    return temp.child != null && temp.child.isEndOfWord;
+            if (temp.child != null && temp.child.isEndOfWord) {
+                temp.child.importance++;
+                return true;
+            }
 		}
-
 		// mismatch
-		else {
-			return false;
-		}
+        return false;
 	}
 }
