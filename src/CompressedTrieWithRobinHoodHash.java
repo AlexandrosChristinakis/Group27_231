@@ -119,41 +119,23 @@ public class CompressedTrieWithRobinHoodHash {
 
 		return result;
 	}
-	
-	public boolean search (String word) {
-		// implementation
-		return searchRecursively(root, word);
-	}
 
-	private boolean searchRecursively(CompressedTrieNodeWithHash node, String word){
-		if (word.isEmpty()){
-            if (node.isEndOfWord) {
-                node.importance++;
-                return true;
-            }
+	public boolean search(String word){
+        // Call the nodeForPrefix method. This will return null if the prefix/word does not exist in the compressed trie
+        // and if it exists, it will return the node where isEndOfWord = true.
+        CompressedTrieNodeWithHash nodeForPrefix = findNodeForPrefix(word);
+
+        // Check if nodeForPrefix is null
+        if (nodeForPrefix == null) {
             return false;
-		}
-        EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
-		if (temp == null){
-			return false;
-		}
-		int commonPrefix = commonPrefix(temp.label, word);
+        }
+        // If nodeForPrefix is the end of a word, increment the importance of that word.
+        if (nodeForPrefix.isEndOfWord) {
+            nodeForPrefix.importance++;
+            return true;
+        }
 
-		// now time to check if label is a prefix of our word
-		if (commonPrefix == temp.label.length() && commonPrefix<word.length() ){
-			return searchRecursively(temp.child, word.substring(temp.label.length()));
-		}
-
-		// check if our label and word match exactly
-		else if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
-		    // We fully consumed the label and the word.
-		    // The correct end-of-word flag is on the CHILD node.
-            if (temp.child != null && temp.child.isEndOfWord) {
-                temp.child.importance++;
-                return true;
-            }
-		}
-		// mismatch
+        // If nodeForPrefix is not the end of a word, it means that this particular word is not stored in the trie.
         return false;
 	}
 
@@ -165,16 +147,13 @@ public class CompressedTrieWithRobinHoodHash {
         if (word.isEmpty()){
             return node;
         }
-
         EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
         if (temp != null){
             int commonPrefix = commonPrefix(temp.label, word);
-
             // now time to check if label is a prefix of our word
             if (commonPrefix == temp.label.length() && commonPrefix<word.length() ){
                 return findNodeForPrefixRecursively(temp.child, word.substring(temp.label.length()));
             }
-
             // check if our label and word match exactly
             else if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
                 // We fully consumed the label and the word.
@@ -182,7 +161,6 @@ public class CompressedTrieWithRobinHoodHash {
                 return temp.child;
             }
         }
-
         return null;
     }
 
