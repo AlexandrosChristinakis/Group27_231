@@ -4,9 +4,11 @@ public class CompressedTrieNodeWithHash {
 
     private RobinHoodHashing edges = new RobinHoodHashing();
     protected boolean isEndOfWord;
+    protected int importance;
 
     public CompressedTrieNodeWithHash() {
-        isEndOfWord = false;
+        this.isEndOfWord = false;
+        this.importance = 0;
     }
 
     // ------------------ INSERT EDGE USING HASH ------------------
