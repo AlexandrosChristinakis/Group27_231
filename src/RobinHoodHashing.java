@@ -60,7 +60,7 @@ public class RobinHoodHashing {
     private int size;
     private int maxProbe;
     
-    private static final int[] capacities = {5, 11, 23, 47, 97, 197};
+    private static final int[] capacities = {3, 7, 11, 17, 23, 29};
     private int capIndex = 0;
 
     // ====================== CONSTRUCTOR ======================
