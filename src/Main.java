@@ -15,7 +15,6 @@ public class Main {
 
         // Fill dictionary with the ArrayList obtained from the dictionary.txt file.
         fillDictionaryCompressedTrie(dictionaryCompressedTrie, fillDictionaryWords);
-
     }
 
     public static ArrayList<String> getWordsArrayFromFile(String fileName) {
@@ -35,6 +34,12 @@ public class Main {
     public static void fillDictionaryCompressedTrie(CompressedTrieWithRobinHoodHash dictionaryCompressedTrie, ArrayList<String> wordsList) {
         for (String word: wordsList) {
             dictionaryCompressedTrie.insert(word);
+        }
+    }
+
+    public static void updateCompressTrieNodeImportance(CompressedTrieWithRobinHoodHash dictionaryCompressedTrie, ArrayList<String> wordsList) {
+        for (String word: wordsList) {
+            dictionaryCompressedTrie.search(word);
         }
     }
 }
