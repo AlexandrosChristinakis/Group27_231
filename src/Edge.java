@@ -1,4 +1,4 @@
-package lab8;
+package def.src;
 
 public class Edge {
 	protected String label;

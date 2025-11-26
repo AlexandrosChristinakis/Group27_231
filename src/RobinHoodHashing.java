@@ -1,4 +1,4 @@
-package def;
+package def.src;
 
 /**
  * Robin Hood Hashing for storing trie edges.

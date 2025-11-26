@@ -1,3 +1,5 @@
+package def.src;
+
 public class Trie {
     private class TrieNode {
         private TrieNode[] children;

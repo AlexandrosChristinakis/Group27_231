@@ -1,4 +1,4 @@
-package project;
+package def.src;
 
 public class ImportanceMinHeap {
 	public class Node {

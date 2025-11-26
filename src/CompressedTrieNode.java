@@ -1,4 +1,4 @@
-package lab8;
+package def.src;
 
 public class CompressedTrieNode {
 	private SinglyLinkedList edgeList;

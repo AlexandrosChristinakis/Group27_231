@@ -1,4 +1,4 @@
-package def;
+package def.src;
 
 public class CompressedTrieNodeWithHash {
 
