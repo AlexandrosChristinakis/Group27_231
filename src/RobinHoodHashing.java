@@ -144,6 +144,36 @@ public class RobinHoodHashing {
         return 0;
     }
 
+    // ====================== MAX PROBE LENGTH =================================
+    public void findNewMaxProbeLength() {
+        // set the maxProbeLength to zero.
+        this.maxProbe = 0;
+
+        // Variable to store the probeLength of each instance in the table.
+        int probeLength;
+
+        // Variable to store the edge at every iteration of the loop
+        EdgeForHashing e;
+
+        for (int i = 0; i < capacity; i++) {
+            // Store the edge at index i
+            e = table[i];
+
+            // check if e is null
+            if (e == null) {
+                continue;
+            }
+
+            // Get the probeLength of the e edge.
+            probeLength = getProbeLength(e.label.charAt(0), i);
+
+            // Compare the probeLength of the current edge with the maxProbe
+            if (probeLength > this.maxProbe) {
+                this.maxProbe = probeLength;
+            }
+        }
+    }
+
     // ====================== DELETE (for trie splitting) ======================
     public void deleteEdge(EdgeForHashing e) {
         char key = e.label.charAt(0);
@@ -166,7 +196,7 @@ public class RobinHoodHashing {
                     insert(move);
                     next = (next + 1) % capacity;
                 }
-
+                findNewMaxProbeLength();
                 return;
             }
 
