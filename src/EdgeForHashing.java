@@ -10,7 +10,6 @@ public class EdgeForHashing {
         this.label = "";
         this.child = null;
         this.occupied = false;
-
     }
 
     public EdgeForHashing(String label, CompressedTrieNodeWithHash child) {

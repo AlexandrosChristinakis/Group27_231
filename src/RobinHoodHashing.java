@@ -199,7 +199,6 @@ public class RobinHoodHashing {
                 findNewMaxProbeLength();
                 return;
             }
-
             index = (index + 1) % capacity;
         }
     }
