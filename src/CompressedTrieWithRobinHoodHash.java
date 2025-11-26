@@ -49,11 +49,11 @@ public class CompressedTrieWithRobinHoodHash {
 
 	private void insertRecursively(CompressedTrieNodeWithHash node, String word) {
 
-	    Edge edge = node.getEdgeByFirstChar(word.charAt(0));
+	    EdgeForHashing edge = node.getEdgeByFirstChar(word.charAt(0));
 
 	    // Case 0: No matching edge → insert full word
 	    if (edge == null) {
-	        Edge newEdge = new Edge(word);
+            EdgeForHashing newEdge = new EdgeForHashing(word);
             CompressedTrieNodeWithHash child = new CompressedTrieNodeWithHash();
 	        child.isEndOfWord = true;
 	        newEdge.child = child;
@@ -129,7 +129,7 @@ public class CompressedTrieWithRobinHoodHash {
 		if (word.isEmpty()){
 			return node.isEndOfWord;
 		}
-		Edge temp = node.getEdgeByFirstChar(word.charAt(0));
+        EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
 		if (temp == null){
 			return false;
 		}
