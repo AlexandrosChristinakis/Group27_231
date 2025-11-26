@@ -6,6 +6,13 @@ public class EdgeForHashing {
     protected CompressedTrieNodeWithHash child;
     protected boolean occupied;
 
+    public EdgeForHashing() {
+        this.label = "";
+        this.child = null;
+        this.occupied = false;
+
+    }
+
     public EdgeForHashing(String label, CompressedTrieNodeWithHash child) {
         this.label = label;
         this.child = child;
