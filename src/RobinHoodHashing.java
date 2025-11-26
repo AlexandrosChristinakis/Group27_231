@@ -21,6 +21,7 @@ public class RobinHoodHashing {
 	        rh.insert(new EdgeForHashing("cow"));
 	        rh.insert(new EdgeForHashing("duck"));
 	        rh.insert(new EdgeForHashing("bat"));
+            rh.insert(new EdgeForHashing("fox"));
 
 	        System.out.println("\n=== Table After Insertions ===");
 	        rh.debug();
@@ -42,20 +43,9 @@ public class RobinHoodHashing {
 	        System.out.println("\n=== Table After Deletion ===");
 	        rh.debug();
 	    }
-	
-    // ====================== ELEMENT ======================
-    public static class Element {
-        EdgeForHashing edge;        // The stored edge
-        int probeLength;  // How far this element has probed
-
-        Element(EdgeForHashing edge2) {
-            this.edge = edge2;
-            this.probeLength = 0;
-        }
-    }
 
     // ====================== TABLE FIELDS ======================
-    private Element[] table;
+    private EdgeForHashing[] table;
     private int capacity;
     private int size;
     private int maxProbe;
@@ -66,7 +56,7 @@ public class RobinHoodHashing {
     // ====================== CONSTRUCTOR ======================
     public RobinHoodHashing() {
         this.capacity = capacities[0];
-        this.table = new Element[this.capacity];
+        this.table = new EdgeForHashing[this.capacity];
         this.size = 0;
         this.maxProbe = 0;
     }
@@ -82,27 +72,37 @@ public class RobinHoodHashing {
             rehash();
         }
 
-        Element elem = new Element(edge);
         char key = edge.label.charAt(0);
         int index = hash(key);
+
+        // Initialize the probeLength to zero
+        int probeLength = 0;
 
         while (true) {
 
             if (table[index] == null) {
-                table[index] = elem;
+                table[index] = edge;
                 size++;
-                if (elem.probeLength > maxProbe) maxProbe = elem.probeLength;
+
+                // Check if the probeLength is greater than maxProbe
+                if (probeLength > maxProbe) maxProbe = probeLength;
                 return;
             }
 
+            // Compute the probe length of te element that is currently at table[index]
+            int currentProbeLength = getProbeLength(table[index].label.charAt(0), index);
+
             // Robin Hood swap if incoming has larger probe distance
-            if (elem.probeLength > table[index].probeLength) {
-                Element temp = table[index];
-                table[index] = elem;
-                elem = temp;
+            if (probeLength > currentProbeLength) {
+                EdgeForHashing temp = table[index];
+                table[index] = edge;
+                edge = temp;
+
+                // update the probeLength of the edge that is to be inserted.
+                probeLength = currentProbeLength;
             }
 
-            elem.probeLength++;
+            probeLength++;
             index = (index + 1) % capacity;
         }
     }
@@ -112,11 +112,10 @@ public class RobinHoodHashing {
         int index = hash(c);
 
         for (int i = 0; i <= maxProbe; i++) {
-            Element el = table[index];
-            if (el == null) return null;
+            if (table[index] == null) return null;
 
-            if (el.edge.label.charAt(0) == c) {
-                return el.edge;
+            if (table[index].label.charAt(0) == c) {
+                return table[index];
             }
 
             index = (index + 1) % capacity;
@@ -154,18 +153,17 @@ public class RobinHoodHashing {
 
             if (table[index] == null) return;
 
-            if (table[index].edge == e) {
+            if (table[index] == e) {
                 table[index] = null;
                 size--;
 
                 // SHIFT BACKWARD (Robin Hood deletion repair)
                 int next = (index + 1) % capacity;
 
-                while (table[next] != null && table[next].probeLength > 0) {
-                    Element move = table[next];
+                while (table[next] != null && this.getProbeLength(table[next].label.charAt(0), next) > 0) {
+                    EdgeForHashing move = table[next];
                     table[next] = null;
-                    move.probeLength--;
-                    insert(move.edge);
+                    insert(move);
                     next = (next + 1) % capacity;
                 }
 
@@ -186,15 +184,15 @@ public class RobinHoodHashing {
         capIndex++;
         int newCap = capacities[capIndex];
 
-        Element[] old = table;
-        table = new Element[newCap];
+        EdgeForHashing[] old = table;
+        table = new EdgeForHashing[newCap];
         capacity = newCap;
         size = 0;
         maxProbe = 0;
 
-        for (Element e : old) {
+        for (EdgeForHashing e : old) {
             if (e != null) {
-                insert(e.edge);
+                insert(e);
             }
         }
     }
@@ -207,10 +205,12 @@ public class RobinHoodHashing {
                 System.out.println("_");
             } else {
                 System.out.println("(" +
-                    table[i].edge.label + 
-                    ", probe=" + table[i].probeLength + "), new probe=" + this.getProbeLength(table[i].edge.label.charAt(0), i));
+                    table[i].label +
+                    ", probe=" + this.getProbeLength(table[i].label.charAt(0), i) + ")");
             }
         }
+
+        System.out.println("Maximum probeLength: " + this.maxProbe);
     }
     
     
