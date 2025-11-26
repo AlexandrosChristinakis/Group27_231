@@ -156,4 +156,34 @@ public class CompressedTrieWithRobinHoodHash {
 		// mismatch
         return false;
 	}
+
+    public CompressedTrieNodeWithHash findNodeForPrefix(String word) {
+        return findNodeForPrefixRecursively(root, word);
+    }
+
+    private CompressedTrieNodeWithHash findNodeForPrefixRecursively(CompressedTrieNodeWithHash node, String word) {
+        if (word.isEmpty()){
+            return node;
+        }
+
+        EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
+        if (temp != null){
+            int commonPrefix = commonPrefix(temp.label, word);
+
+            // now time to check if label is a prefix of our word
+            if (commonPrefix == temp.label.length() && commonPrefix<word.length() ){
+                return findNodeForPrefixRecursively(temp.child, word.substring(temp.label.length()));
+            }
+
+            // check if our label and word match exactly
+            else if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
+                // We fully consumed the label and the word.
+                // The correct end-of-word flag is on the CHILD node.
+                return temp.child;
+            }
+        }
+
+        return null;
+    }
+
 }
