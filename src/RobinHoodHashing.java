@@ -125,6 +125,26 @@ public class RobinHoodHashing {
         return null;
     }
 
+    // ===================== PROBE LENGTH ====================================
+    public int getProbeLength(char key, int keyLocation) {
+        // Get the supposed position of the key.
+        int index = hash(key);
+
+        // If the key is stored after the supposed index
+        if (keyLocation > index) {
+            return (keyLocation - index);
+        }
+
+        // If the key is stored before the supposed index we need another formula
+        // for computing the probeLength.
+        if (keyLocation < index) {
+            return (capacity - index + keyLocation);
+        }
+
+        // If the index is the same as the current location of the key. probeLength = 0.
+        return 0;
+    }
+
     // ====================== DELETE (for trie splitting) ======================
     public void deleteEdge(EdgeForHashing e) {
         char key = e.label.charAt(0);
@@ -188,7 +208,7 @@ public class RobinHoodHashing {
             } else {
                 System.out.println("(" +
                     table[i].edge.label + 
-                    ", probe=" + table[i].probeLength + ")");
+                    ", probe=" + table[i].probeLength + "), new probe=" + this.getProbeLength(table[i].edge.label.charAt(0), i));
             }
         }
     }
