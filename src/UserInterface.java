@@ -28,13 +28,31 @@ public class UserInterface {
                 System.exit(0);
             }
 
+            if (command[0].equals("predict")) {
+                char maxChar = predictNextLetter(command[1]);
+                if (maxChar != 0) {
+                    System.out.println("Predicted character: " + maxChar);
+                }
+            }
+
         }
     }
 
     private double averageFrequency(String prefix) {
-        CompressedTrieNodeWithHash prefixNode = this.dictionaryTrie.findNodeForPrefix(prefix);
-        int frequencyCounter = frequencyCounterRecursive(prefixNode);
-        int wordsCounter = wordsCounterFromPrefixRecursive(prefixNode);
+        EdgeForHashing prefixEdge = this.dictionaryTrie.findEdgeForPrefix(prefix);
+
+        // check if the prefixNode is null.
+        if (prefixEdge == null) {
+            return 0.0;
+        }
+
+        // Get the edge of where the prefix is stored.
+//        EdgeForHashing edge = prefixNode.getEdgeByFirstChar(prefix.charAt(0));
+
+        // pass the edge.child to the frequencyCounterRecursive and
+        // wordsCounterFromPrefixRecursive methods.
+        int frequencyCounter = frequencyCounterRecursive(prefixEdge.child);
+        int wordsCounter = wordsCounterFromPrefixRecursive(prefixEdge.child);
 
         return (double) frequencyCounter / wordsCounter;
     }
@@ -61,6 +79,7 @@ public class UserInterface {
 
     private int frequencyCounterRecursive(CompressedTrieNodeWithHash prefixNode) {
         int frequencyCounter = 0;
+
         // Base case is when prefixNode == null
         if (prefixNode != null) {
             if (prefixNode.isEndOfWord) {
@@ -78,5 +97,45 @@ public class UserInterface {
             }
         }
         return frequencyCounter;
+    }
+
+    private char predictNextLetter(String prefix) {
+        EdgeForHashing prefixNode = this.dictionaryTrie.findEdgeForPrefix(prefix);
+
+        if (prefixNode == null) {
+            return 0;
+        }
+
+        double maxAverageFrequency = 0;
+        char maxChar = 0;
+
+
+        // Iterate over all the children of the prefixNode (if any)
+//        for (EdgeForHashing edge: prefixNode.edges.table) {
+//
+//            // Handle null edges
+//            if (edge == null) {
+//                continue;
+//            }
+//
+//            if (edge.occupied) {
+//                // Edge is not null => access the label's first character.
+//                char labelChar = edge.label.charAt(0);
+//
+//                // Compute the average frequency of the prefix + edge label.
+//                // prefix + edge label is the same as prefix + first char of label.
+//                // prefix + first char of label will give an avgFreq = Nan because
+//                // such a word does not exist in the dictionary.
+//                double averageFrequencyChar = averageFrequency(prefix + edge.label);
+//
+//                // If the averageFrequency of the prefix + labelChar is greater than maxAverageFrequency
+//                // update the maxFrequency and save the labelChar in a separate variable
+//                if (averageFrequencyChar > maxAverageFrequency) {
+//                    maxChar = labelChar;
+//                    maxAverageFrequency = averageFrequencyChar;
+//                }
+//            }
+//        }
+        return maxChar;
     }
 }
