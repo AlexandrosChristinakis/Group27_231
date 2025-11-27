@@ -146,7 +146,12 @@ public class CompressedTrieWithRobinHoodHash {
 
             // Perfect match
             if (word.length() == commonPrefix && temp.label.length() == commonPrefix) {
-                return temp.child.isEndOfWord;
+                if (temp.child.isEndOfWord) {
+                    temp.child.importance++;
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         return false;
@@ -161,12 +166,13 @@ public class CompressedTrieWithRobinHoodHash {
             return node;
         }
         EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
+
         if (temp != null){
 
             int commonPrefix = commonPrefix(temp.label, word);
 
             // Case 1: Now time to check if label is a prefix of our word
-            if (commonPrefix == temp.label.length() && commonPrefix <= word.length()){
+            if (commonPrefix == temp.label.length() && commonPrefix < word.length()){
                 return findNodeForPrefixRecursively(temp.child, word.substring(temp.label.length()));
             }
 
@@ -176,6 +182,41 @@ public class CompressedTrieWithRobinHoodHash {
                 return node;
             }
 
+            if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
+                return node;
+            }
+        }
+        return null;
+
+    }
+
+    public EdgeForHashing findEdgeForPrefix(String word) {
+        return findEdgeForPrefixRecursively(root, word);
+    }
+
+    private EdgeForHashing findEdgeForPrefixRecursively(CompressedTrieNodeWithHash node, String word) {
+//        if (word.isEmpty()){
+//            return node;
+//        }
+        EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
+        if (temp != null){
+
+            int commonPrefix = commonPrefix(temp.label, word);
+
+            // Case 1: Now time to check if label is a prefix of our word
+            if (commonPrefix == temp.label.length() && commonPrefix < word.length()){
+                return findEdgeForPrefixRecursively(temp.child, word.substring(temp.label.length()));
+            }
+
+            // Case 2: Check if the word is exactly equal to prefix but label is larger.
+            // This is the case in which the word is a prefix of the given edge.
+            if (word.length() == commonPrefix && temp.label.length() > commonPrefix) {
+                return temp;
+            }
+
+            if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
+                return temp;
+            }
         }
         return null;
     }
