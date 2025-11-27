@@ -2,7 +2,7 @@ package def.src;
 
 public class CompressedTrieNodeWithHash {
 
-    private RobinHoodHashing edges = new RobinHoodHashing();
+    protected RobinHoodHashing edges = new RobinHoodHashing();
     protected boolean isEndOfWord;
     protected int importance;
 
