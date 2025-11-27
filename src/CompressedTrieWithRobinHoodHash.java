@@ -149,17 +149,20 @@ public class CompressedTrieWithRobinHoodHash {
         }
         EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
         if (temp != null){
+
             int commonPrefix = commonPrefix(temp.label, word);
-            // now time to check if label is a prefix of our word
-            if (commonPrefix == temp.label.length() && commonPrefix<word.length() ){
+
+            // Case 1: Now time to check if label is a prefix of our word
+            if (commonPrefix == temp.label.length() && commonPrefix <= word.length()){
                 return findNodeForPrefixRecursively(temp.child, word.substring(temp.label.length()));
             }
-            // check if our label and word match exactly
-            else if (commonPrefix == temp.label.length() && commonPrefix == word.length()) {
-                // We fully consumed the label and the word.
-                // The correct end-of-word flag is on the CHILD node.
-                return temp.child;
+
+            // Case 2: Check if the word is exactly equal to prefix but label is larger.
+            // This is the case in which the word is a prefix of the given edge.
+            if (word.length() == commonPrefix && temp.label.length() > commonPrefix) {
+                return node;
             }
+
         }
         return null;
     }
