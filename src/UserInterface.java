@@ -100,42 +100,65 @@ public class UserInterface {
     }
 
     private char predictNextLetter(String prefix) {
-        EdgeForHashing prefixNode = this.dictionaryTrie.findEdgeForPrefix(prefix);
+        EdgeForHashing prefixEdge = this.dictionaryTrie.findEdgeForPrefix(prefix);
 
-        if (prefixNode == null) {
+        if (prefixEdge == null) {
             return 0;
         }
+
+        // Get the full prefix word until the current edge.
+        String fullPrefix = dictionaryTrie.getPrefixToNode(prefixEdge.child, prefix);
+
+        // We have to check if the fullPrefix is the same as prefix. If fullPrefix contains a larger word
+        // then we should print the immediate character after the common prefix between prefix and fullPrefix
+        if (!fullPrefix.equals(prefix)) {
+            int commonPrefix = CompressedTrieWithRobinHoodHash.commonPrefix(fullPrefix, prefix);
+
+            if (prefix.length() > commonPrefix) {
+                System.out.println("Prefix is longer than common prefix");
+                System.exit(1);
+            }
+
+            // The prefixEdge.label word is larger than the prefix word and therefore we should return the first character
+            // after the common prefix.
+            System.out.println("Prediction is based on word splitting current node.");
+            return fullPrefix.substring(prefix.length()).charAt(0);
+        }
+
+
+        // Get the node of the child of prefix edge.
+        CompressedTrieNodeWithHash prefixNode = prefixEdge.child;
 
         double maxAverageFrequency = 0;
         char maxChar = 0;
 
 
         // Iterate over all the children of the prefixNode (if any)
-//        for (EdgeForHashing edge: prefixNode.edges.table) {
-//
-//            // Handle null edges
-//            if (edge == null) {
-//                continue;
-//            }
-//
-//            if (edge.occupied) {
-//                // Edge is not null => access the label's first character.
-//                char labelChar = edge.label.charAt(0);
-//
-//                // Compute the average frequency of the prefix + edge label.
-//                // prefix + edge label is the same as prefix + first char of label.
-//                // prefix + first char of label will give an avgFreq = Nan because
-//                // such a word does not exist in the dictionary.
-//                double averageFrequencyChar = averageFrequency(prefix + edge.label);
-//
-//                // If the averageFrequency of the prefix + labelChar is greater than maxAverageFrequency
-//                // update the maxFrequency and save the labelChar in a separate variable
-//                if (averageFrequencyChar > maxAverageFrequency) {
-//                    maxChar = labelChar;
-//                    maxAverageFrequency = averageFrequencyChar;
-//                }
-//            }
-//        }
+        for (EdgeForHashing edge: prefixNode.edges.table) {
+
+            // Handle null edges
+            if (edge == null) {
+                continue;
+            }
+
+            if (edge.occupied) {
+                // Edge is not null => access the label's first character.
+                char labelChar = edge.label.charAt(0);
+
+                // Compute the average frequency of the prefix + edge label.
+                // prefix + edge label is the same as prefix + first char of label.
+                // prefix + first char of label will give an avgFreq = Nan because
+                // such a word does not exist in the dictionary.
+                double averageFrequencyChar = averageFrequency(prefix + edge.label);
+
+                // If the averageFrequency of the prefix + labelChar is greater than maxAverageFrequency
+                // update the maxFrequency and save the labelChar in a separate variable
+                if (averageFrequencyChar > maxAverageFrequency) {
+                    maxChar = labelChar;
+                    maxAverageFrequency = averageFrequencyChar;
+                }
+            }
+        }
         return maxChar;
     }
 }
