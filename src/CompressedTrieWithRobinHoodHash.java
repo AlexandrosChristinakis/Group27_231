@@ -240,4 +240,128 @@ public class CompressedTrieWithRobinHoodHash {
         return null;
     }
 
+    public double averageFrequency(String prefix) {
+        EdgeForHashing prefixEdge = this.findEdgeForPrefix(prefix);
+
+        // check if the prefixNode is null.
+        if (prefixEdge == null) {
+            return 0.0;
+        }
+
+        // Get the edge of where the prefix is stored.
+//        EdgeForHashing edge = prefixNode.getEdgeByFirstChar(prefix.charAt(0));
+
+        // pass the edge.child to the frequencyCounterRecursive and
+        // wordsCounterFromPrefixRecursive methods.
+        int frequencyCounter = frequencyCounterRecursive(prefixEdge.child);
+        int wordsCounter = wordsCounterFromPrefixRecursive(prefixEdge.child);
+
+        return (double) frequencyCounter / wordsCounter;
+    }
+
+    private int wordsCounterFromPrefixRecursive(CompressedTrieNodeWithHash prefixNode) {
+        int wordsCounter = 0;
+        // Base case is when prefixNode == null
+        if (prefixNode != null) {
+            if (prefixNode.isEndOfWord) {
+                wordsCounter++;
+            }
+
+            for (EdgeForHashing edge: prefixNode.edges.table) {
+                if (edge == null) {
+                    continue;
+                }
+                if (edge.occupied) {
+                    wordsCounter += wordsCounterFromPrefixRecursive(edge.child);
+                }
+            }
+        }
+        return wordsCounter;
+    }
+
+    private int frequencyCounterRecursive(CompressedTrieNodeWithHash prefixNode) {
+        int frequencyCounter = 0;
+
+        // Base case is when prefixNode == null
+        if (prefixNode != null) {
+            if (prefixNode.isEndOfWord) {
+                frequencyCounter += prefixNode.importance;
+            }
+
+            for (EdgeForHashing edge: prefixNode.edges.table) {
+                // check if edge is null
+                if (edge == null) {
+                    continue;
+                }
+                if (edge.occupied) {
+                    frequencyCounter += frequencyCounterRecursive(edge.child);
+                }
+            }
+        }
+        return frequencyCounter;
+    }
+
+    public char predictNextLetter(String prefix) {
+        EdgeForHashing prefixEdge = this.findEdgeForPrefix(prefix);
+
+        if (prefixEdge == null) {
+            return 0;
+        }
+
+        // Get the full prefix word until the current edge.
+        String fullPrefix = this.getPrefixToNode(prefixEdge.child, prefix);
+
+        // We have to check if the fullPrefix is the same as prefix. If fullPrefix contains a larger word
+        // then we should print the immediate character after the common prefix between prefix and fullPrefix
+        if (!fullPrefix.equals(prefix)) {
+            int commonPrefix = CompressedTrieWithRobinHoodHash.commonPrefix(fullPrefix, prefix);
+
+            if (prefix.length() > commonPrefix) {
+                System.out.println("Prefix is longer than common prefix");
+                System.exit(1);
+            }
+
+            // The prefixEdge.label word is larger than the prefix word and therefore we should return the first character
+            // after the common prefix.
+            System.out.println("Prediction is based on word splitting current node.");
+            return fullPrefix.substring(prefix.length()).charAt(0);
+        }
+
+
+        // Get the node of the child of prefix edge.
+        CompressedTrieNodeWithHash prefixNode = prefixEdge.child;
+
+        double maxAverageFrequency = 0;
+        char maxChar = 0;
+
+
+        // Iterate over all the children of the prefixNode (if any)
+        for (EdgeForHashing edge: prefixNode.edges.table) {
+
+            // Handle null edges
+            if (edge == null) {
+                continue;
+            }
+
+            if (edge.occupied) {
+                // Edge is not null => access the label's first character.
+                char labelChar = edge.label.charAt(0);
+
+                // Compute the average frequency of the prefix + edge label.
+                // prefix + edge label is the same as prefix + first char of label.
+                // prefix + first char of label will give an avgFreq = Nan because
+                // such a word does not exist in the dictionary.
+                double averageFrequencyChar = averageFrequency(prefix + edge.label);
+
+                // If the averageFrequency of the prefix + labelChar is greater than maxAverageFrequency
+                // update the maxFrequency and save the labelChar in a separate variable
+                if (averageFrequencyChar > maxAverageFrequency) {
+                    maxChar = labelChar;
+                    maxAverageFrequency = averageFrequencyChar;
+                }
+            }
+        }
+        return maxChar;
+    }
+
 }
