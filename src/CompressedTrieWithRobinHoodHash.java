@@ -108,8 +108,29 @@ public class CompressedTrieWithRobinHoodHash {
 	    // (handled by Case 0 earlier)
 	}
 
+    protected String getPrefixToNode(CompressedTrieNodeWithHash prefixChildNode, String prefixPartial) {
+        String word = "";
+        CompressedTrieNodeWithHash tempNode = this.root;
 
-	private static int commonPrefix(String str1, String str2){
+        EdgeForHashing tempEdge = tempNode.getEdgeByFirstChar(prefixPartial.charAt(0));
+
+
+        while (tempEdge.child != prefixChildNode) {
+            word += tempEdge.label;
+
+            prefixPartial = prefixPartial.substring(tempEdge.label.length());
+
+            tempNode = tempEdge.child;
+            tempEdge = tempNode.getEdgeByFirstChar(prefixPartial.charAt(0));
+        }
+
+        word += tempEdge.label;
+
+        return word;
+    }
+
+
+	protected static int commonPrefix(String str1, String str2){
 		int result = 0;
 
 		int minLength = Math.min(str1.length(), str2.length());
@@ -195,9 +216,7 @@ public class CompressedTrieWithRobinHoodHash {
     }
 
     private EdgeForHashing findEdgeForPrefixRecursively(CompressedTrieNodeWithHash node, String word) {
-//        if (word.isEmpty()){
-//            return node;
-//        }
+
         EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
         if (temp != null){
 
