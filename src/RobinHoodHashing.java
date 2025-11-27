@@ -45,10 +45,10 @@ public class RobinHoodHashing {
 	    }
 
     // ====================== TABLE FIELDS ======================
-    private EdgeForHashing[] table;
-    private int capacity;
-    private int size;
-    private int maxProbe;
+    protected EdgeForHashing[] table;
+    protected int capacity;
+    protected int size;
+    protected int maxProbe;
     
     private static final int[] capacities = {3, 7, 11, 17, 23, 29};
     private int capIndex = 0;
