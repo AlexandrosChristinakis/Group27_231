@@ -6,7 +6,7 @@ public class CompressedTrieWithRobinHoodHash {
 	
 
 	public static void main(String[] args) {
-	    CompressedTrie tree = new CompressedTrie();
+        CompressedTrieWithRobinHoodHash tree = new CompressedTrieWithRobinHoodHash();
 
         System.out.println("=== INSERTING WORDS ===");
         tree.insert("sigma");
@@ -15,6 +15,8 @@ public class CompressedTrieWithRobinHoodHash {
         tree.insert("cat");
         tree.insert("stock");     
         tree.insert("stop");
+        tree.insert("apple");
+        tree.insert("application");
        
 
         System.out.println("\n=== SEARCH TESTS ===");
@@ -24,6 +26,7 @@ public class CompressedTrieWithRobinHoodHash {
         System.out.println("cat -> " + tree.search("cat"));
         System.out.println("stock -> " + tree.search("stock"));
         System.out.println("stop -> " + tree.search("stop"));
+        System.out.println("apple -> " + tree.search("apple"));
 
         System.out.println("\n=== NEGATIVE TESTS ===");
         System.out.println("sig -> " + tree.search("sig"));
@@ -120,24 +123,34 @@ public class CompressedTrieWithRobinHoodHash {
 		return result;
 	}
 
-	public boolean search(String word){
-        // Call the nodeForPrefix method. This will return null if the prefix/word does not exist in the compressed trie
-        // and if it exists, it will return the node where isEndOfWord = true.
-        CompressedTrieNodeWithHash nodeForPrefix = findNodeForPrefix(word);
+    public boolean search(String word) {
+        return searchRecursively(this.root, word);
+    }
 
-        // Check if nodeForPrefix is null
-        if (nodeForPrefix == null) {
+	public boolean searchRecursively(CompressedTrieNodeWithHash node, String word){
+        // Check if the word is empty
+        if (word.isEmpty()){
             return false;
         }
-        // If nodeForPrefix is the end of a word, increment the importance of that word.
-        if (nodeForPrefix.isEndOfWord) {
-            nodeForPrefix.importance++;
-            return true;
-        }
 
-        // If nodeForPrefix is not the end of a word, it means that this particular word is not stored in the trie.
+        EdgeForHashing temp = node.getEdgeByFirstChar(word.charAt(0));
+
+        if (temp != null){
+
+            int commonPrefix = commonPrefix(temp.label, word);
+
+            // Case 1: Now time to check if label is a prefix of our word
+            if (commonPrefix == temp.label.length() && commonPrefix < word.length()){
+                return searchRecursively(temp.child, word.substring(temp.label.length()));
+            }
+
+            // Perfect match
+            if (word.length() == commonPrefix && temp.label.length() == commonPrefix) {
+                return temp.child.isEndOfWord;
+            }
+        }
         return false;
-	}
+    }
 
     public CompressedTrieNodeWithHash findNodeForPrefix(String word) {
         return findNodeForPrefixRecursively(root, word);
