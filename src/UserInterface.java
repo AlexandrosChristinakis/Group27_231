@@ -19,7 +19,7 @@ public class UserInterface {
             System.out.print("Enter a command: ");
             String[] command = reader.nextLine().split(" ");
 
-            if (command[0].equals("freq")) {
+            if (command[0].equals("frequency")) {
                 double avgFrequency = dictionaryTrie.averageFrequency(command[1]);
                 System.out.println("avgFrequency: " + avgFrequency);
             }
@@ -33,6 +33,10 @@ public class UserInterface {
                 if (maxChar != 0) {
                     System.out.println("Predicted character: " + maxChar);
                 }
+            }
+
+            if (command[0].equals("k")) {
+                dictionaryTrie.topKFrequentWordsWithPrefix(command[1], Integer.valueOf(command[2]));
             }
 
         }

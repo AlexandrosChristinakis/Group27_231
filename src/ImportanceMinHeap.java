@@ -127,7 +127,7 @@ public class ImportanceMinHeap {
         Node tempNode;
         // We want to find out if a String is “bigger” or “smaller” than another string
         // (that is, whether it comes before or after alphabetically)
-        int stringComparisonResult = heap[i].word.compareTo(heap[i+1].word);
+        int stringComparisonResult = heap[i].word.compareTo(heap[j].word);
 
         // If stringComparisonResult > 0 it means that heap[i] is larger than heap[i+1].
         if (stringComparisonResult > 0) {
