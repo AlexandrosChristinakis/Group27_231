@@ -288,7 +288,7 @@ public class CompressedTrieWithRobinHoodHash {
                 frequencyCounter += prefixNode.importance;
             }
 
-            for (EdgeForHashing edge: prefixNode.edges.table) {
+            for (EdgeForHashing edge : prefixNode.edges.table) {
                 // check if edge is null
                 if (edge == null) {
                     continue;
@@ -362,6 +362,46 @@ public class CompressedTrieWithRobinHoodHash {
             }
         }
         return maxChar;
+    }
+
+    public void topKFrequentWordsWithPrefix(String prefix, int k) {
+        // Create the minHeap that will store the k most important words that start with prefix.
+        ImportanceMinHeap minHeap = new ImportanceMinHeap(k);
+
+        // Get the edge that contains the prefix.
+        EdgeForHashing prefixEdge = this.findEdgeForPrefix(prefix);
+
+        if (prefixEdge == null) {
+            System.out.println("No word exists with that prefix.");
+            return;
+        }
+
+        buildImportanceMinHeap(prefixEdge.child, minHeap, prefix);
+        minHeap.displayDescending();
+    }
+
+    private void buildImportanceMinHeap(CompressedTrieNodeWithHash prefixNode, ImportanceMinHeap minHeap, String prefix) {
+        // check if prefixNode is null
+        if (prefixNode == null) {
+            return;
+        }
+
+        // check if the prefixNode is the end of a word.
+        if (prefixNode.isEndOfWord) {
+            // Get the full word that ends at this node.
+            String word = getPrefixToNode(prefixNode, prefix);
+            minHeap.insert(word, prefixNode.importance);
+        }
+
+        for (EdgeForHashing edge: prefixNode.edges.table) {
+            if (edge == null || !edge.occupied) {
+                continue;
+            }
+            // Edge is not null and it contains a label. Call again the method on the child node with the updated prefix.
+            buildImportanceMinHeap(edge.child, minHeap, prefix + edge.label);
+        }
+
+
     }
 
 }
