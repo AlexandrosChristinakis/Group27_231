@@ -36,6 +36,8 @@ public class ImportanceMinHeap {
 	{
 		this.maxSize = maxSize;
 		heap = new Node[this.maxSize + 1];
+        // Fill the first node in the heap with a blank node so it's not null.
+        heap[0] = new Node("", -1);
 	}
 	
 	private int parent(int pos) { return pos / 2; }
@@ -110,11 +112,30 @@ public class ImportanceMinHeap {
 	}
 
 	
-	public void display()
-	{
-		for(int i = 1; i <= this.size; i++)
-			System.out.println(heap[i].word + ", " + heap[i].importance);
+	public void displayDescending() {
+		for(int i = this.size-1; i >= 0; i--) {
+
+            if (heap[i].importance == heap[i + 1].importance) {
+                swapAlphabetically(i, i + 1);
+            }
+
+            System.out.println(heap[i + 1].word + ", " + heap[i + 1].importance);
+        }
 	}
+
+    public void swapAlphabetically(int i, int j) {
+        Node tempNode;
+        // We want to find out if a String is “bigger” or “smaller” than another string
+        // (that is, whether it comes before or after alphabetically)
+        int stringComparisonResult = heap[i].word.compareTo(heap[i+1].word);
+
+        // If stringComparisonResult > 0 it means that heap[i] is larger than heap[i+1].
+        if (stringComparisonResult > 0) {
+            tempNode = heap[i+1];
+            heap[i+1] = heap[i];
+            heap[i] = tempNode;
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -123,7 +144,7 @@ public class ImportanceMinHeap {
         heap1.insert("apple", 10);
         heap1.insert("banana", 5);
         heap1.insert("cat", 7);
-        heap1.display();
+        heap1.displayDescending();
         // Expected heap order (min-heap): lowest importance at top
 
 
@@ -137,7 +158,7 @@ public class ImportanceMinHeap {
         heap2.insert("frog", 20);  // should replace the smallest (importance 2)
         heap2.insert("goat", 1);   // should NOT enter heap
         heap2.insert("horse", 15); // should replace the smallest
-        heap2.display();
+        heap2.displayDescending();
         // Should contain 5 HIGHEST importance values
 
 
@@ -147,15 +168,15 @@ public class ImportanceMinHeap {
         heap3.insert("b", 2);
         heap3.insert("c", 3);
         System.out.println("Initial heap:");
-        heap3.display();
+        heap3.displayDescending();
 
         heap3.insert("d", 10); // should replace root (importance 1)
         System.out.println("After inserting (d,10):");
-        heap3.display();
+        heap3.displayDescending();
 
         heap3.insert("e", 0); // lower importance → should NOT replace anything
         System.out.println("After inserting (e,0) – no change expected:");
-        heap3.display();
+        heap3.displayDescending();
 
 
         System.out.println("\n===== Test 4: existsNode() =====");
@@ -178,15 +199,15 @@ public class ImportanceMinHeap {
         heap5.insert("y", 4);
         heap5.insert("z", 6);
         System.out.println("Initial heap:");
-        heap5.display();
+        heap5.displayDescending();
 
         heap5.insert("w", 1); // too small → ignore
         System.out.println("After inserting (w,1) – nothing should change:");
-        heap5.display();
+        heap5.displayDescending();
 
         heap5.insert("v", 10); // large → replace smallest (importance 2)
         System.out.println("After inserting (v,10) – should replace root:");
-        heap5.display();
+        heap5.displayDescending();
 
 
         System.out.println("\n===== Test 6: Insert in descending order =====");
@@ -196,11 +217,11 @@ public class ImportanceMinHeap {
         heap6.insert("c", 30);
         heap6.insert("d", 20);
         heap6.insert("e", 10);
-        heap6.display();  // should show min-heap ordering
+        heap6.displayDescending();  // should show min-heap ordering
 
         heap6.insert("f", 60); // should replace smallest (10)
         heap6.insert("g", 70); // should replace next smallest (20)
-        heap6.display();
+        heap6.displayDescending();
     }
 
 
