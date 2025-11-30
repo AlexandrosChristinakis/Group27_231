@@ -50,6 +50,7 @@ public class CompressedTrieNodeWithHash {
 
         // attach suffix to prefix child
         prefixChild.insertEdge(suffixEdge);
+
     }
 
     // ------------------ SPLIT NODE 2 ------------------

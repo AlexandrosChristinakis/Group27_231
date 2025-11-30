@@ -68,7 +68,9 @@ public class RobinHoodHashing {
 
     // ====================== INSERT ======================
     public void insert(EdgeForHashing edge) {
-        if (size >= 0.9 * capacity) {   // load factor 0.9
+//        System.out.println(edge.label);
+        if (size >= 0.90 * capacity) {   // load factor 0.9
+            System.out.println(edge.label);
             rehash();
         }
 

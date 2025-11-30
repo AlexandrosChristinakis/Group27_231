@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         CompressedTrieWithRobinHoodHash dictionaryCompressedTrie = new CompressedTrieWithRobinHoodHash();
-        ArrayList<String> fillDictionaryWords = getWordsArrayFromFile("src/dictionary.txt");
+        ArrayList<String> fillDictionaryWords = getWordsArrayFromFile("src/dict_variable_10000.txt");
         ArrayList<String> randomTextWords = getWordsArrayFromFile("src/text_input.txt");
 
         // Fill dictionary with the ArrayList obtained from the dictionary.txt file.
