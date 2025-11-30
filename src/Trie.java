@@ -1,3 +1,5 @@
+package def;
+
 public class Trie {
     private class TrieNode {
         private TrieNode[] children;
