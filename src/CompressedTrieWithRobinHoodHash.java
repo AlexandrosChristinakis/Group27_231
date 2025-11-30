@@ -1,5 +1,7 @@
-package def.src;
+package def;
 
+
+import java.util.ArrayList;
 
 public class CompressedTrieWithRobinHoodHash {
 	CompressedTrieNodeWithHash root;
@@ -400,8 +402,19 @@ public class CompressedTrieWithRobinHoodHash {
             // Edge is not null and it contains a label. Call again the method on the child node with the updated prefix.
             buildImportanceMinHeap(edge.child, minHeap, prefix + edge.label);
         }
+    }
 
+    public void fillDictionaryCompressedTrie(ArrayList<String> wordsList) {
+        for (String word: wordsList) {
 
+            insert(word.toLowerCase());
+        }
+    }
+
+    public void updateCompressTrieNodeImportance(ArrayList<String> wordsList) {
+        for (String word: wordsList) {
+            search(word.toLowerCase());
+        }
     }
 
 }

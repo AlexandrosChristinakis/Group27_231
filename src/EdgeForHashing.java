@@ -1,4 +1,4 @@
-package def.src;
+package def;
 
 public class EdgeForHashing {
 

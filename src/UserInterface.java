@@ -1,4 +1,4 @@
-package def.src;
+package def;
 import java.util.Scanner;
 
 public class UserInterface {
@@ -18,6 +18,11 @@ public class UserInterface {
         while (true) {
             System.out.print("Enter a command: ");
             String[] command = reader.nextLine().split(" ");
+            try {
+                command[1] = command[1].toLowerCase();
+            } catch(Exception e) {
+                System.out.println("Second command was not entered.");
+            }
 
             if (command[0].equals("frequency")) {
                 double avgFrequency = dictionaryTrie.averageFrequency(command[1]);
